@@ -41,13 +41,6 @@
 
     <!-- Scenario Specific Flows -->
 
-    <!-- Event Venue Surge (Approach A - West) -->
-    <!-- Event ends around 30-45 mins (1800s - 2700s). Surge lasts for ~20 mins (1200s). -->
-    <!-- Event traffic starts leaving at 1600s (approx 26 mins) -->
-    <flow id="event_W_E" type="car_event" route="W_to_E" begin="1600" end="2800" probability="0.35"/>  <!-- High flow: 1260 veh/hr during surge -->
-    <flow id="event_W_N" type="car_event" route="W_to_N" begin="1600" end="2800" probability="0.12"/>
-    <flow id="event_W_S" type="car_event" route="W_to_S" begin="1600" end="2800" probability="0.10"/>
-
     <!-- Commercial Hub Peak (Approach B - South) -->
     <!-- Early evening peak starts, let's say from 1000s (approx 16 mins) and lasts through end -->
     <flow id="commercial_S_N" type="car_commercial" route="S_to_N" begin="1000" end="3600" probability="0.22"/> <!-- Moderate-High flow: ~792 veh/hr -->
@@ -58,6 +51,14 @@
     <!-- Starts a bit earlier than event end, maybe around 1400s -->
     <flow id="commercial_W_E" type="car_commercial" route="W_to_E" begin="1400" end="3000" probability="0.10"/> <!-- Adds to West congestion -->
     <flow id="commercial_W_N" type="car_commercial" route="W_to_N" begin="1400" end="3000" probability="0.05"/>
+    
+    <!-- Event Venue Surge (Approach A - West) -->
+    <!-- Event ends around 30-45 mins (1800s - 2700s). Surge lasts for ~20 mins (1200s). -->
+    <!-- Event traffic starts leaving at 1600s (approx 26 mins) -->
+    <flow id="event_W_E" type="car_event" route="W_to_E" begin="1600" end="2800" probability="0.35"/>  <!-- High flow: 1260 veh/hr during surge -->
+    <flow id="event_W_N" type="car_event" route="W_to_N" begin="1600" end="2800" probability="0.12"/>
+    <flow id="event_W_S" type="car_event" route="W_to_S" begin="1600" end="2800" probability="0.10"/>
+
 
     <!-- Un-signaled Minor Incident -->
     <!-- This will be simulated by a brief, intense surge on one of the commuter routes (e.g. North)
