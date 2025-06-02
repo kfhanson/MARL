@@ -6,7 +6,6 @@ import numpy as np
 import random
 import traceback
 
-# --- SUMO Configuration ---
 try:
     if 'SUMO_HOME' in os.environ:
         tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -20,13 +19,12 @@ except ImportError:
 SUMO_BINARY = checkBinary('sumo-gui')
 CONFIG_FILE = "osm.sumocfg"
 NET_FILE = "osm.net.xml"
-TRAFFIC_LIGHT_ID = 'joinedS_6421159832_cluster_3639980474_3640024452_3640024453_6421159827_#4more_cluster_6421159831_7129012339' # Your TL ID from the image
+TRAFFIC_LIGHT_ID = 'joinedS_6421159832_cluster_3639980474_3640024452_3640024453_6421159827_#4more_cluster_6421159831_7129012339'
 OUTPUT_CSV_FILE = "sumo_data.csv"
 
-# --- Parameters for the Data Collection Policy (iot_control.py like) ---
 CONGESTION_THRESHOLD_POLICY = 5 # vehicles
 MIN_GREEN_TIME_IOT_POLICY = 10  # seconds
-YELLOW_TIME_IOT_POLICY = 6      # seconds (as per your image)
+YELLOW_TIME_IOT_POLICY = 6      # seconds
 
 # --- Mappings for 4 Main Green Phases ---
 # Agent Action -> SUMO Green Phase Index
@@ -40,17 +38,13 @@ SUMO_GREEN_PHASE_TO_AGENT_ACTION = {v: k for k, v in AGENT_ACTION_TO_SUMO_GREEN_
 # SUMO Green Phase Index -> SUMO Yellow Phase Index
 SUMO_GREEN_TO_YELLOW_PHASE = {0: 1, 2: 3, 4: 5, 6: 7}
 
-# --- State and Reward Definition for Logging (What the DQN will learn from) ---
-# These define which SUMO edges correspond to "North", "South", "East", "West"
-# for the *state representation* logged in the CSV and used by the DQN.
-# Scenario: Event West, Commercial South & West, Commuter North. East is background.
 APPROACH_EDGES_FOR_STATE_LOGGING = {
     "north": "754598165#2",   # Commuter
     "south": "1053267667#3",  # Commercial Hub
     "east": "749662140#0",    # Background/Other Commuter
     "west": "885403818#2",    # Event Venue & Other Commercial
 }
-VEHICLE_BINS_FOR_STATE_LOGGING = [5, 15, 30] # (0-4, 5-14, 15-29, 30+)
+VEHICLE_BINS_FOR_STATE_LOGGING = [5, 15, 30]
 
 g_last_total_wait_time_log = 0
 g_net_obj_policy_logger = None
@@ -66,9 +60,6 @@ def get_sumo_state_for_log():
         s = discretize_value_log(traci.edge.getLastStepHaltingNumber(APPROACH_EDGES_FOR_STATE_LOGGING["south"]), VEHICLE_BINS_FOR_STATE_LOGGING)
         e = discretize_value_log(traci.edge.getLastStepHaltingNumber(APPROACH_EDGES_FOR_STATE_LOGGING["east"]), VEHICLE_BINS_FOR_STATE_LOGGING)
         w = discretize_value_log(traci.edge.getLastStepHaltingNumber(APPROACH_EDGES_FOR_STATE_LOGGING["west"]), VEHICLE_BINS_FOR_STATE_LOGGING)
-        # current_tl_phase_idx = traci.trafficlight.getPhase(TRAFFIC_LIGHT_ID) # Optional: Add to state
-        # agent_action_phase = SUMO_GREEN_PHASE_TO_AGENT_ACTION.get(current_tl_phase_idx, -1) # Map SUMO phase to agent action
-        # return (n, s, e, w, agent_action_phase) # If adding phase to state
         return (n, s, e, w)
     except Exception as e_state:
         print(f"Error in get_sumo_state_for_log: {e_state}")
@@ -87,9 +78,6 @@ def calculate_sumo_reward_for_log():
         print(f"Error in calculate_sumo_reward_for_log: {e_reward}")
         return 0
 
-# --- Rule-Based Policy Logic (iot_control.py like) ---
-# This dictionary maps SUMO edge IDs to named directions AS UNDERSTOOD BY THE RULE-BASED POLICY.
-# **Ensure these edges and names align with your iot_control.py logic**
 IOT_POLICY_EDGE_TO_DIRECTION_NAME = {
     "754598165#2": "north",  # Commuter
     "1053267667#3": "south", # Commercial
@@ -97,15 +85,12 @@ IOT_POLICY_EDGE_TO_DIRECTION_NAME = {
     "885403818#2": "west",   # Event
 }
 
-# Map named directions (as understood by policy) to the agent actions that serve them
-# This is crucial for the rule-based policy to pick an action.
 DIRECTION_TO_AGENT_ACTION_POLICY = {
     "south": 0, # Agent action 0 serves South (SUMO Phase 0)
     "east":  1, # Agent action 1 serves East  (SUMO Phase 2)
     "north": 2, # Agent action 2 serves North (SUMO Phase 4)
     "west":  3, # Agent action 3 serves West  (SUMO Phase 6)
 }
-
 
 def get_phase_green_directions_for_policy(tls_id, phase_state_str):
     global g_net_obj_policy_logger
@@ -138,9 +123,8 @@ def get_rule_based_policy_action(current_tl_sumo_phase_idx):
     """
     try:
         # Get vehicle counts/congestion for each named approach policy understands
-        policy_approach_congestion = {} # direction_name: count
+        policy_approach_congestion = {} 
         for edge_id, direction_name in IOT_POLICY_EDGE_TO_DIRECTION_NAME.items():
-            # Using HaltingNumber for simplicity, align with your iot_control.py if different
             count = traci.edge.getLastStepHaltingNumber(edge_id)
             policy_approach_congestion[direction_name] = count
 
@@ -199,7 +183,7 @@ def get_rule_based_policy_action(current_tl_sumo_phase_idx):
         traceback.print_exc()
         return random.choice(list(AGENT_ACTION_TO_SUMO_GREEN_PHASE.keys())) # Random on error
 
-# --- Main Data Collection Function ---
+# Main Data Collection Function
 def run_sumo_and_log_data(num_simulation_steps=30000, data_collection_policy_name="rule_based"):
     global g_last_total_wait_time_log, g_net_obj_policy_logger
     
@@ -213,7 +197,6 @@ def run_sumo_and_log_data(num_simulation_steps=30000, data_collection_policy_nam
     g_net_obj_policy_logger = net.readNet(NET_FILE)
     print(f"SUMO started for data collection with policy: {data_collection_policy_name}")
 
-    # CSV Header: state_N, state_S, state_E, state_W, (optional: state_phase), action, reward, next_..., done
     csv_header = [
         "state_N", "state_S", "state_E", "state_W", "action", "reward",
         "next_state_N", "next_state_S", "next_state_E", "next_state_W", "done"
@@ -229,7 +212,7 @@ def run_sumo_and_log_data(num_simulation_steps=30000, data_collection_policy_nam
             g_last_total_wait_time_log = 0
             phase_decision_timer = 0.0
             
-            for _ in range(5): traci.simulationStep(); current_step+=1 # Initialize
+            for _ in range(5): traci.simulationStep(); current_step+=1 
             
             state_s_for_log = get_sumo_state_for_log()
             action_applied_by_policy_for_log = -1
@@ -238,21 +221,20 @@ def run_sumo_and_log_data(num_simulation_steps=30000, data_collection_policy_nam
                 current_tl_sumo_phase_idx = traci.trafficlight.getPhase(TRAFFIC_LIGHT_ID)
                 is_currently_green = current_tl_sumo_phase_idx in AGENT_ACTION_TO_SUMO_GREEN_PHASE.values()
                 
-                if state_s_for_log is None: # Recapture state if lost
+                if state_s_for_log is None:
                     state_s_for_log = get_sumo_state_for_log()
                     if state_s_for_log is None:
                         traci.simulationStep(); current_step +=1; phase_decision_timer += traci.simulation.getDeltaT(); continue
 
-                # Decision point
                 if not is_currently_green or phase_decision_timer >= MIN_GREEN_TIME_IOT_POLICY:
                     if data_collection_policy_name == "rule_based":
                         decided_agent_action = get_rule_based_policy_action(current_tl_sumo_phase_idx)
                     elif data_collection_policy_name == "random":
                         decided_agent_action = random.choice(list(AGENT_ACTION_TO_SUMO_GREEN_PHASE.keys()))
-                    else: # Default to random
+                    else:
                         decided_agent_action = random.choice(list(AGENT_ACTION_TO_SUMO_GREEN_PHASE.keys()))
 
-                    if decided_agent_action is not None: # Policy made a decision
+                    if decided_agent_action is not None: 
                         action_applied_by_policy_for_log = decided_agent_action
                         target_sumo_green_phase = AGENT_ACTION_TO_SUMO_GREEN_PHASE[decided_agent_action]
 
@@ -266,15 +248,13 @@ def run_sumo_and_log_data(num_simulation_steps=30000, data_collection_policy_nam
                                 if traci.simulation.getMinExpectedNumber() == 0: break
                             
                             traci.trafficlight.setPhase(TRAFFIC_LIGHT_ID, target_sumo_green_phase)
-                        phase_decision_timer = 0.0 # Reset timer for the new/continued green phase
-                    elif is_currently_green: # Policy decided to stay (decided_agent_action was None but it's green)
+                        phase_decision_timer = 0.0
+                    elif is_currently_green:
                          action_applied_by_policy_for_log = SUMO_GREEN_PHASE_TO_AGENT_ACTION.get(current_tl_sumo_phase_idx, -1)
 
-
-                # Step SUMO
                 traci.simulationStep()
                 current_step += 1
-                phase_decision_timer += traci.simulation.getDeltaT() # Always increment timer based on sim step
+                phase_decision_timer += traci.simulation.getDeltaT()
                 
                 # Observe results s', r, done
                 state_s_prime_for_log = get_sumo_state_for_log()
@@ -290,7 +270,7 @@ def run_sumo_and_log_data(num_simulation_steps=30000, data_collection_policy_nam
                     logged_transitions += 1
                 
                 state_s_for_log = state_s_prime_for_log
-                action_applied_by_policy_for_log = -1 # Reset until next explicit decision
+                action_applied_by_policy_for_log = -1 
 
                 if done_for_log: break
             
