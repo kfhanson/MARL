@@ -1,0 +1,82 @@
+[
+    {
+        "config": {
+            "learning_rate": 0.0005,
+            "gamma": 0.95,
+            "num_epochs": 100,
+            "batch_size": 128
+        },
+        "eval_metric": 28.165223964613315,
+        "model_path": "grid_search_models\\model_lr0.0005_gamma0.95_ep100_bs128_trial7.weights.h5"
+    },
+    {
+        "config": {
+            "learning_rate": 0.0005,
+            "gamma": 0.95,
+            "num_epochs": 100,
+            "batch_size": 64
+        },
+        "eval_metric": 28.569963284129482,
+        "model_path": "grid_search_models\\model_lr0.0005_gamma0.95_ep100_bs64_trial6.weights.h5"
+    },
+    {
+        "config": {
+            "learning_rate": 0.0005,
+            "gamma": 0.95,
+            "num_epochs": 75,
+            "batch_size": 128
+        },
+        "eval_metric": 44.98041403891361,
+        "model_path": "grid_search_models\\model_lr0.0005_gamma0.95_ep75_bs128_trial5.weights.h5"
+    },
+    {
+        "config": {
+            "learning_rate": 0.0005,
+            "gamma": 0.95,
+            "num_epochs": 75,
+            "batch_size": 64
+        },
+        "eval_metric": 62.239843333915495,
+        "model_path": "grid_search_models\\model_lr0.0005_gamma0.95_ep75_bs64_trial4.weights.h5"
+    },
+    {
+        "config": {
+            "learning_rate": 0.001,
+            "gamma": 0.95,
+            "num_epochs": 75,
+            "batch_size": 64
+        },
+        "eval_metric": 86.17948118146914,
+        "model_path": "grid_search_models\\model_lr0.001_gamma0.95_ep75_bs64_trial0.weights.h5"
+    },
+    {
+        "config": {
+            "learning_rate": 0.001,
+            "gamma": 0.95,
+            "num_epochs": 100,
+            "batch_size": 128
+        },
+        "eval_metric": 95.43809732866004,
+        "model_path": "grid_search_models\\model_lr0.001_gamma0.95_ep100_bs128_trial3.weights.h5"
+    },
+    {
+        "config": {
+            "learning_rate": 0.001,
+            "gamma": 0.95,
+            "num_epochs": 100,
+            "batch_size": 64
+        },
+        "eval_metric": 160.88512965464773,
+        "model_path": "grid_search_models\\model_lr0.001_gamma0.95_ep100_bs64_trial2.weights.h5"
+    },
+    {
+        "config": {
+            "learning_rate": 0.001,
+            "gamma": 0.95,
+            "num_epochs": 75,
+            "batch_size": 128
+        },
+        "eval_metric": 212.13153756334376,
+        "model_path": "grid_search_models\\model_lr0.001_gamma0.95_ep75_bs128_trial1.weights.h5"
+    }
+]
