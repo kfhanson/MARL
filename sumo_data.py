@@ -17,7 +17,7 @@ try:
 except ImportError:
     sys.exit("Please set the SUMO_HOME environment variable or ensure SUMO tools are in your Python path.")
 
-SUMO_BINARY = checkBinary('sumo')
+SUMO_BINARY = checkBinary('sumo-gui')
 CONFIG_FILE = "osm.sumocfg"
 NET_FILE = "osm.net.xml.gz" # Needed for iot_control phase mapping
 TRAFFIC_LIGHT_ID = 'joinedS_6421159832_cluster_3639980474_3640024452_3640024453_6421159827_#4more_cluster_6421159831_7129012339'

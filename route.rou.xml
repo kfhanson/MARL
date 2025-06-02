@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+
+    <!-- Vehicle Types -->
+    <vType id="car_commuter" accel="2.6" decel="4.5" sigma="0.5" length="5" minGap="2.5" maxSpeed="20" color="1,1,0" guiShape="passenger"/>
+    <vType id="car_event" accel="2.8" decel="4.8" sigma="0.6" length="5" minGap="2.5" maxSpeed="20" color="0,1,1" guiShape="passenger/sedan"/>
+    <vType id="car_commercial" accel="2.5" decel="4.3" sigma="0.5" length="5" minGap="2.5" maxSpeed="18" color="1,0,1" guiShape="passenger/hatchback"/>
+
+    <!-- Define Base Routes (Ensure these edge IDs are correct for YOUR osm.net.xml) -->
+    <!-- From North (Commuter) -->
+    <route id="N_to_S" edges="754598165#2 757092064#1"/>
+    <route id="N_to_E" edges="754598165#2 563175146#1"/>
+    <route id="N_to_W" edges="754598165#2 978400303#0"/>
+
+    <!-- From East (Light Commuter / Background) -->
+    <route id="E_to_W" edges="749662140#0 978400303#0"/>
+    <route id="E_to_N" edges="749662140#0 749988360#0"/>
+    <route id="E_to_S" edges="749662140#0 757092064#1"/>
+
+    <!-- From South (Approach B - Commercial Hub) -->
+    <route id="S_to_N" edges="1053267667#3 749988360#0"/>
+    <route id="S_to_E" edges="1053267667#3 563175146#1"/>
+    <route id="S_to_W" edges="1053267667#3 978400303#0"/>
+
+    <!-- From West (Approach A - Event Venue & Approach C - Commercial) -->
+    <route id="W_to_E" edges="885403818#2 563175146#1"/>
+    <route id="W_to_N" edges="885403818#2 749988360#0"/>
+    <route id="W_to_S" edges="885403818#2 757092064#1"/>
+
+    <!-- Simulation Duration: 3600 seconds (1 hour) -->
+
+    <!-- Base Commuter Traffic (Mainly North & some East) -->
+    <flow id="commuter_N_S" type="car_commuter" route="N_to_S" begin="0" end="3600" probability="0.18"/> <!-- Approx 648 veh/hr from North -->
+    <flow id="commuter_N_E" type="car_commuter" route="N_to_E" begin="0" end="3600" probability="0.06"/>
+    <flow id="commuter_N_W" type="car_commuter" route="N_to_W" begin="0" end="3600" probability="0.06"/>
+
+    <flow id="bg_E_W" type="car_commuter" route="E_to_W" begin="0" end="3600" probability="0.05"/> <!-- Light background from East -->
+    <flow id="bg_E_N" type="car_commuter" route="E_to_N" begin="0" end="3600" probability="0.02"/>
+    <flow id="bg_E_S" type="car_commuter" route="E_to_S" begin="0" end="3600" probability="0.02"/>
+
+
+    <!-- Scenario Specific Flows -->
+
+    <!-- Event Venue Surge (Approach A - West) -->
+    <!-- Event ends around 30-45 mins (1800s - 2700s). Surge lasts for ~20 mins (1200s). -->
+    <!-- Event traffic starts leaving at 1600s (approx 26 mins) -->
+    <flow id="event_W_E" type="car_event" route="W_to_E" begin="1600" end="2800" probability="0.35"/>  <!-- High flow: 1260 veh/hr during surge -->
+    <flow id="event_W_N" type="car_event" route="W_to_N" begin="1600" end="2800" probability="0.12"/>
+    <flow id="event_W_S" type="car_event" route="W_to_S" begin="1600" end="2800" probability="0.10"/>
+
+    <!-- Commercial Hub Peak (Approach B - South) -->
+    <!-- Early evening peak starts, let's say from 1000s (approx 16 mins) and lasts through end -->
+    <flow id="commercial_S_N" type="car_commercial" route="S_to_N" begin="1000" end="3600" probability="0.22"/> <!-- Moderate-High flow: ~792 veh/hr -->
+    <flow id="commercial_S_E" type="car_commercial" route="S_to_E" begin="1000" end="3600" probability="0.08"/>
+    <flow id="commercial_S_W" type="car_commercial" route="S_to_W" begin="1000" end="3600" probability="0.07"/>
+
+    <!-- Additional Commercial Traffic (Approach C - West, overlaps with event) -->
+    <!-- Starts a bit earlier than event end, maybe around 1400s -->
+    <flow id="commercial_W_E" type="car_commercial" route="W_to_E" begin="1400" end="3000" probability="0.10"/> <!-- Adds to West congestion -->
+    <flow id="commercial_W_N" type="car_commercial" route="W_to_N" begin="1400" end="3000" probability="0.05"/>
+
+    <!-- Un-signaled Minor Incident -->
+    <!-- This will be simulated by a brief, intense surge on one of the commuter routes (e.g. North)
+         or by using the TraCI lane closure method in the logger.
+         For this route file, we'll make the commuter peak sharper for a short duration.
+         Let's add a short, unexpected commuter surge from North mid-way.
+    -->
+    <flow id="incident_surge_N_S" type="car_commuter" route="N_to_S" begin="2000" end="2300" probability="0.15"/> <!-- Extra 540 veh/hr for 5 mins -->
+
+</routes>
