@@ -112,9 +112,7 @@ def run_visualization_episode(agent, episode_num_vis, max_steps_vis=3600, sim_se
     ])
     
 
-    if SUMO_BINARY.endswith("-gui"):
-        sumo_cmd_list.append("--step-length=0.2")
-        print("  Running SUMO GUI with --step-length=0.2 for smoother visualization.")
+    
 
     traci.start(sumo_cmd_list)
     print(f"  SUMO visualization episode {episode_num_vis} started (Epsilon: {agent.epsilon}).")
