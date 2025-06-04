@@ -1,5 +1,5 @@
 # Real-Time Demand Prediction and Adaptive Signal Control for a Critical Urban Intersection
-# Offline DQN for Traffic Light Control in SUMO
+### Offline DQN for Traffic Light Control in SUMO
 
 This project implements an offline Deep Q-Network (DQN) agent to control a traffic light in a SUMO (Simulation of Urban MObility) environment. The agent is trained using data collected from SUMO simulations and aims to optimize traffic flow by minimizing vehicle waiting times.
 
@@ -73,14 +73,7 @@ The project includes:
     *   Use `evaluation.ipynb` to load and visualize the XML output files from `evaluation.py` and baseline runs.
     *   Use `final_evaluation.ipynb` to load and visualize results from `final_evaluation.py`, potentially comparing the tuned DQN agent with baselines and the initial DQN agent. This notebook is likely used for the final comparison charts.
 
-7.  **Model Architecture Visualization:**
-    *   Run `plot_model.py` to generate a diagram of the DQN's LSTM network architecture.
-        ```bash
-        python plot_model.py
-        ```
-    *   This will create `dqn_lstm_model_architecture.png`.
-
-8.  **Agent Simulation Visualization (GUI):**
+7.  **Agent Simulation Visualization (GUI):**
     *   Modify `MODEL_LOAD_PATH` in `simulation.py` to point to your desired trained model.
     *   Ensure `SUMO_BINARY` in `simulation.py` is set to `sumo-gui` (or the path to your SUMO GUI executable).
     *   Run the script:
@@ -101,7 +94,6 @@ The DQN agent uses a Long Short-Term Memory (LSTM) network. The architecture is:
 ## Results and Analysis
 
 Detailed evaluation results, including comparisons of average waiting time, trip duration, and throughput against baseline agents (Fixed-Time, Rule-Based), can be found in the Jupyter Notebooks:
-- `evaluation.ipynb`: For visualizing results from `evaluation.py`.
 - `final_evaluation.ipynb`: For comprehensive comparison including the tuned model from grid search.
 - `analyze_data.ipynb`: For exploring the characteristics of the offline training dataset (`sumo_data.csv`).
 
