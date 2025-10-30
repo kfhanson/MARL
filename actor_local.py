@@ -88,7 +88,6 @@ def download_model_from_obs(local_path):
         else:
             print("Failed to download model. Status:", resp.status)
             return False
-        print("Model downloaded successfully from OBS.")
     except Exception as e:
         print("Error downloading model from OBS:", e)
         return False
@@ -130,3 +129,50 @@ def get_multi_agent_sumo_state(tls_id):
         return state_vector.reshape((1, SEQUENCE_LENGTH, STATE_FEATURES))
     except traci.TraCIException as e:
         return None
+
+def calculate_hybrid_reward(tls_id, all_tls_ids):
+    try:
+        # Local reward
+        local_wait_time = sum(traci.edge.getWaitingTime(edge) for edge in LOCAL_APPROACH_EDGES[tls_id].values())
+        local_reward = -local_wait_time
+
+        # Global reward
+        total_corridor_wait_time = 0
+        num_edges = 0
+        for tid in all_tls_ids:
+            edges = LOCAL_APPROACH_EDGES[tid].values()
+            total_corridor_wait_time += sum(traci.edge.getWaitingTime(edge) for edge in edges)
+            num_edges += len(edges)
+
+        global_reward = - (total_corridor_wait_time / num_edges) if num_edges > 0 else 0
+
+        hybrid_reward = (0.7 * local_reward) + (0.3 * global_reward)
+        return hybrid_reward
+    except traci.TraCIException as e:
+        print(f"TraCI Exception in reward calculation for {tls_id}: {e}")
+        return 0
+    
+
+class ActorAgent:
+    def __init__(self, state_dims, action_size, sequence_length):
+        self.state_feature_size = state_dims
+        self.action_size = action_size
+        self.sequence_length = sequence_length
+        self.q_network = self._build_lstm_model()
+    
+    def _build_lstm_model(self):
+        model = Sequential([
+            Input(shape=(self.sequence_length, self.state_feature_size)),
+            LSTM(32, activation='relu'),
+            Dense(self.action_size, activation='linear')
+        ])
+        model.compile(optimizer=Adam(learning_rate=0.001), loss='mse')
+        return model
+    
+    def select_action(self, current_state, epsilon):
+        if np.random.rand() <= epsilon:
+            return random.randrange(self.action_size)
+        if current_state is None:
+            return random.randrange(self.action_size)
+        q_values = self.q_network.predict(current_state, verbose=0)
+        return np.argmax(q_values[0])
