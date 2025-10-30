@@ -18,12 +18,12 @@ except ImportError:
     print("Huawei OBS SDK not found.")
     sys.exit(1)
 
-OBS_ACCESS_KEY = ""
-OBS_SECRET_KEY = ""
-OBS_ENDPOINT = ""
-MODEL_BUCKET_NAME = ""
-DATA_BUCKET_NAME = ""
-MODEL_FILENAME = ""
+OBS_ACCESS_KEY = "HPUASIYBEFEMQB6ME72M"
+OBS_SECRET_KEY = "OA4WJvXtJithi950i4a6r55Me9NeGyA1RZKgIhQk"
+OBS_ENDPOINT = "obs.ap-southeast-4.myhuaweicloud.com"
+MODEL_BUCKET_NAME = "flow-model-weights"
+DATA_BUCKET_NAME = "flow-experience-data"
+MODEL_FILENAME = "flow_model_latest.weights.h5"
 
 SUMO_BINARY = "sumo"
 CONFIG_FILE = "bsd.sumocfg"
@@ -31,7 +31,10 @@ TRAFFIC_LIGHT_IDS = ["cluster_12705056632_3639980474_3640024452_3640024453_#7mor
 
 NEIGHBOR_EDGE_MAP = {
     "cluster_12705056632_3639980474_3640024452_3640024453_#7more": {
-        "neighbor_incoming_edge"
+        "neighbor_incoming_edge": ""
+    },
+    "cluster_3640024470_3640024471_3640024476_699593339_#8more": {
+        "neighbor_incoming_edge": ""
     }
 }
 
