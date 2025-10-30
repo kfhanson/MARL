@@ -10,6 +10,7 @@ from keras.models import Sequential
 from keras.layers import LSTM, Dense, Input
 from keras.optimizers import Adam #
 import traceback
+import csv
 
 try:
     from obs import ObsClient
@@ -176,3 +177,118 @@ class ActorAgent:
             return random.randrange(self.action_size)
         q_values = self.q_network.predict(current_state, verbose=0)
         return np.argmax(q_values[0])
+    
+# Main Simulation
+def run_data_collection_episode(agents, episode_num):
+    global g_epsilon
+    if 'SUMO_HOME' not in os.environ:
+        tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
+        sys.path.append(tools)
+    else:
+        sys.exit("Please declare environment variable 'SUMO_HOME'")
+
+    sumo_cmd = [checkBinary(SUMO_BINARY), "-c", CONFIG_FILE, "--time-to-teleport", "-1", "--waiting-time-memory", "1000"]
+    traci.start(sumo_cmd)
+    print(f"Starting episode {episode_num} with epsilon {g_epsilon:.3f}")
+    
+    experiences = []
+    step = 0
+
+    agent_states = {tls_id: None for tls_id in TRAFFIC_LIGHT_IDS}
+    agent_actions = {tls_id: None for tls_id in TRAFFIC_LIGHT_IDS}
+    phase_timers = {tls_id: 0.0 for tls_id in TRAFFIC_LIGHT_IDS}
+
+    while step < MAX_STEPS_PER_EPISODE and traci.simulation.getMinExpectedNumber() > 0:
+        traci.simulationStep()
+
+        for tls_id in TRAFFIC_LIGHT_IDS:
+            current_phase = traci.trafficlight.getPhase(tls_id)
+            is_green = current_phase in ACTION_TO_GREEN_PHASE.values()
+
+            if not is_green or phase_timers[tls_id] >= MIN_GREEN_TIME:
+                old_state = get_multi_agent_sumo_state(tls_id)
+                if old_state is None:
+                    continue
+                action = agents[tls_id].select_action(old_state, g_epsilon)
+
+                agent_states[tls_id] = old_state
+                agent_actions[tls_id] = action
+
+                target_green_phase = ACTION_TO_GREEN_PHASE[action]
+                if current_phase != target_green_phase:
+                    if current_phase in GREEN_TO_YELLOW_PHASE:
+                        traci.trafficlight.setPhase(tls_id, GREEN_TO_YELLOW_PHASE[current_phase])
+                        for _ in range(int(YELLOW_TIME / traci.simulation.getDeltaT())):
+                            traci.simulationStep(); step += 1
+                    traci.trafficlight.setPhase(tls_id, target_green_phase)
+                phase_timers[tls_id] = 0.0
+
+        if agent_actions[TRAFFIC_LIGHT_IDS[0]] is not None:
+            for tls_id in TRAFFIC_LIGHT_IDS:
+                if agent_states[tls_id] is None:
+                    next_state = get_multi_agent_sumo_state(tls_id)
+                    reward = calculate_hybrid_reward(tls_id, TRAFFIC_LIGHT_IDS)
+                    done = traci.simulation.getMinExpectedNumber() == 0
+
+                    experiences.append(
+                        agent_states[tls_id].flatten().tolist(),
+                        agent_actions[tls_id],
+                        reward,
+                        next_state.flatten().tolist() if next_state is not None else [0]*STATE_FEATURES,
+                        done
+                    )
+            agent_states = {tls_id: None for tls_id in TRAFFIC_LIGHT_IDS}
+            agent_actions = {tls_id: None for tls_id in TRAFFIC_LIGHT_IDS}
+
+        for tls_id in TRAFFIC_LIGHT_IDS:
+            phase_timers[tls_id] += traci.simulation.getDeltaT()
+        step += 1
+
+    traci.close()
+    print(f"Episode {episode_num} finished. Collected {len(experiences)} experiences.")
+    if g_epsilon > EPSILON_END:
+        g_epsilon *= EPSILON_DECAY
+    
+    return experiences
+
+if __name__ == "__main__":
+    from sumolib import checkBinary
+
+    # 1. Initialize agents for each traffic light
+    agents = {}
+    for tls_id in TRAFFIC_LIGHT_IDS:
+        agents[tls_id] = ActorAgent(STATE_FEATURES, NUM_ACTIONS, SEQUENCE_LENGTH)
+    
+    # 2. Download latest model and load weights
+    download_model_from_obs(MODEL_FILENAME)
+    for agent in agents.values():
+        agent.load_weights(MODEL_FILENAME)
+
+    # 3. Run simulation episodes
+    all_experiences = []
+    for i in range(EPISODES_TO_RUN):
+        all_experiences.extend(run_data_collection_episode(agents, i+1))
+    
+    # 4. Save experiences to CSV
+    if not all_experiences:
+        print("No experiences collected.")
+        sys.exit()
+    
+    print(f"\nTotal experiences collected: {len(all_experiences)}")
+    local_csv_path = "collected_experiences.csv"
+    header = [f"state_{i}" for i in range(STATE_FEATURES)]
+    header += ["action", "reward"] 
+    header += [f"next_state_{i}" for i in range(STATE_FEATURES)]
+    header += ["done"]
+    
+    with open(local_csv_path, 'w', newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        for exp in all_experiences:
+            s, a, r, s_prime, d = exp
+            writer.writerow(s + [a, r] + s_prime + [d])
+    
+    print(f"Experiences saved to {local_csv_path}")
+
+    upload_data_to_obs(local_csv_path)
+    print("Data collection and upload complete.")
