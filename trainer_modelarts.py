@@ -105,6 +105,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", type=int, default=50, help="Number of training epochs")
     parser.add_argument("--batch_size", type=int, default=64, help="Batch size for training")
+    parser.add_argument("--learning_rate", type=float, default=0.0005, help="Learning rate for the optimizer")
+    parser.add_argument("--gamma", type=float, default=0.95, help="Discount factor for future rewards")
+    parser.add_argument("--state_features", type=int, required=True, help="Number of state features")
+    parser.add_argument("--num_actions", type=int, required=True, help="Number of possible actions")
+    parser.add_argument("--target_update_freq", type=int, default=500, help="Frequency of target network updates (in batches)")
+    args = parser.parse_args()
 
     # 2. ModelArts I/O paths
     data_input_dir = os.environ.get("DLS_DATA_URL", "/")
@@ -112,11 +118,11 @@ if __name__ == "__main__":
 
     # 3. Define agent
     agent = DQNAgent(
-        state_dims = #,
-        action_size= #,
-        sequence_length=1,
-        learning_rate=#,
-        gamma=#
+        state_dims = args.state_features,
+        action_size = args.num_actions,
+        sequence_length = 1,
+        learning_rate = args.learning_rate,
+        gamma = args.gamma
     )
 
     # 4. Load previous model if exists
@@ -132,4 +138,35 @@ if __name__ == "__main__":
         print(f"No existing model found at {model_load_path}. Starting fresh.")
 
     # 5. Load experience data
-    experience_dataset = load_training_data(data_input_dir, )
+    experience_dataset = load_training_data(data_input_dir, args.state_features)
+    if not experience_dataset:
+        print("No training data found. Exiting.")
+        sys.exit(0)
+    
+    # 6. Training loop
+    batches_trained = 0
+    for epoch in range(args.epochs):
+        random.shuffle(experience_dataset)
+        epoch_loss = 0.0
+        num_batches = 0
+
+        for i in range(0, len(experience_dataset), args.batch_size):
+            batch = experience_dataset[i:i + args.batch_size]
+            if len(batch) < args.batch_size // 2:
+                continue
+
+            loss = agent.train_on_batch(batch)
+            epoch_loss += loss
+            num_batches += 1
+            batches_trained += 1
+
+            if batches_trained % args.target_update_freq == 0:
+                agent.update_target_network()
+                print(f"  Target network updated at batch {batches_trained}")
+        
+        avg_loss = epoch_loss / num_batches if num_batches > 0 else 0
+        print(f"Epoch {epoch + 1}/{args.epochs} - Avg Loss: {avg_loss:.6f} over {num_batches} batches")
+
+    # 7. Save model after training
+    final_model_path = os.path.join(model_output_dir, model_filename)
+    agent.save_model(final_model_path)
