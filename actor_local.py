@@ -31,10 +31,10 @@ TRAFFIC_LIGHT_IDS = ["cluster_12705056632_3639980474_3640024452_3640024453_#7mor
 
 NEIGHBOR_EDGE_MAP = {
     "cluster_12705056632_3639980474_3640024452_3640024453_#7more": {
-        "neighbor_incoming_edge": ""
+        "neighbor_incoming_edge": "756081030#1"
     },
     "cluster_3640024470_3640024471_3640024476_699593339_#8more": {
-        "neighbor_incoming_edge": ""
+        "neighbor_incoming_edge": "563175146#1"
     }
 }
 
@@ -60,16 +60,16 @@ GREEN_TO_YELLOW_PHASE = {0: 1, 2: 3, 4: 5, 6: 7}
 # State Definition
 LOCAL_APPROACH_EDGES = {
     "cluster_12705056632_3639980474_3640024452_3640024453_#7more": {
-        "north": "",
-        "south": "",
-        "east": "",
-        "west": "",
+        "north": "749313693#11",
+        "south": "1053267667#5",
+        "east": "749662140#0",
+        "west": "885403818#1",
     },
     "cluster_3640024470_3640024471_3640024476_699593339_#8more": {
-        "north": "",
-        "south": "",
-        "east": "",
-        "west": "",
+        "north": "757467200#0",
+        "south": "757373600#1",
+        "east": "757088117#0",
+        "west": "771544256#1",
     }
 }
 VEHICLE_BINS_FOR_STATE = [5, 15, 30]
