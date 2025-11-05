@@ -1,0 +1,56 @@
+<additional>
+    <!-- ======================================================= -->
+    <!-- Detectors for Intersection J1                           -->
+    <!-- All detectors are 30 meters long, ending at the stop line. -->
+    <!-- ======================================================= -->
+
+    <!-- North Approach (Lane Length: 222.85m) | pos = 222.85 - 30 = 192.85 -->
+    <laneAreaDetector id="det_J1_N_0" lane="749313693#1_0" pos="192.85" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J1_N_1" lane="749313693#1_1" pos="192.85" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J1_N_2" lane="749313693#1_2" pos="192.85" length="30" freq="1" file="detector_output.xml"/>
+
+    <!-- South Approach (Lane Length: 567.63m) | pos = 567.63 - 30 = 537.63 -->
+    <laneAreaDetector id="det_J1_S_0" lane="1396490680_0" pos="537.63" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J1_S_1" lane="1396490680_1" pos="537.63" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J1_S_2" lane="1396490680_2" pos="537.63" length="30" freq="1" file="detector_output.xml"/>
+
+    <!-- East Approach (Lane Length: 49.47m) | pos = 49.47 - 30 = 19.47 -->
+    <laneAreaDetector id="det_J1_E_0" lane="749662140#0_0" pos="19.47" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J1_E_1" lane="749662140#0_1" pos="19.47" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J1_E_2" lane="749662140#0_2" pos="19.47" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J1_E_3" lane="749662140#0_3" pos="19.47" length="30" freq="1" file="detector_output.xml"/>
+
+    <!-- West Approach (Lane Length: 31.33m) | pos = 31.33 - 30 = 1.33 -->
+    <laneAreaDetector id="det_J1_W_0" lane="885403818#1_0" pos="1.33" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J1_W_1" lane="885403818#1_1" pos="1.33" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J1_W_2" lane="885403818#1_2" pos="1.33" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J1_W_3" lane="885403818#1_3" pos="1.33" length="30" freq="1" file="detector_output.xml"/>
+
+    <!-- ======================================================= -->
+    <!-- Detectors for Intersection J2                           -->
+    <!-- ======================================================= -->
+
+    <!-- North Approach (Lane Length: 80.48m) | pos = 80.48 - 30 = 50.48 -->
+    <laneAreaDetector id="det_J2_N_0" lane="757467200_0" pos="50.48" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J2_N_1" lane="757467200_1" pos="50.48" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J2_N_2" lane="757467200_2" pos="50.48" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J2_N_3" lane="757467200_3" pos="50.48" length="30" freq="1" file="detector_output.xml"/>
+
+    <!-- South Approach (Lane Length: 98.12m) | pos = 98.12 - 30 = 68.12 -->
+    <laneAreaDetector id="det_J2_S_0" lane="757373597_0" pos="68.12" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J2_S_1" lane="757373597_1" pos="68.12" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J2_S_2" lane="757373597_2" pos="68.12" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J2_S_3" lane="757373597_3" pos="68.12" length="30" freq="1" file="detector_output.xml"/>
+
+    <!-- East Approach (Lane Length: 34.73m) | pos = 34.73 - 30 = 4.73 -->
+    <laneAreaDetector id="det_J2_E_0" lane="757088117_0" pos="4.73" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J2_E_1" lane="757088117_1" pos="4.73" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J2_E_2" lane="757088117_2" pos="4.73" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J2_E_3" lane="757088117_3" pos="4.73" length="30" freq="1" file="detector_output.xml"/>
+
+    <!-- West Approach (Lane Length: 33.67m) | pos = 33.67 - 30 = 3.67 -->
+    <laneAreaDetector id="det_J2_W_0" lane="771544256#1_0" pos="3.67" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J2_W_1" lane="771544256#1_1" pos="3.67" length="30" freq="1" file="detector_output.xml"/>
+    <laneAreaDetector id="det_J2_W_2" lane="771544256#1_2" pos="3.67" length="30" freq="1" file="detector_output.xml"/>
+
+</additional>

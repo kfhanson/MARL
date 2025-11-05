@@ -13,7 +13,7 @@ from sumolib import checkBinary
 
 SUMO_BINARY = "sumo-gui"
 CORRIDOR_CONFIG_FILE = "bsd.sumocfg"
-TRAFFIC_LIGHT_IDS = ["cluster_12705056632_3639980474_3640024452_3640024453_#7more", "cluster_3640024470_3640024471_3640024476_699593339_#8more"]
+TRAFFIC_LIGHT_IDS = ["cluster_3639980474_3640024452_3640024453_699593332", "cluster_3640024470_3640024471_3640024476_699593339"]
 LOCAL_MODEL_FILE = "marl_dqn_local.weights.h5" 
 
 STATE_FEATURES = 6
@@ -36,11 +36,11 @@ EPSILON_DECAY = 0.995
 g_epsilon = EPSILON_START
 
 NEIGHBOR_EDGE_MAP = {
-    "cluster_12705056632_3639980474_3640024452_3640024453_#7more": {
-        "neighbor_incoming_edge": "756081030#1"
+    "cluster_3639980474_3640024452_3640024453_699593332": {
+        "neighbor_incoming_edge": "362347492"
     },
-    "cluster_3640024470_3640024471_3640024476_699593339_#8more": {
-        "neighbor_incoming_edge": "563175146#1"
+    "cluster_3640024470_3640024471_3640024476_699593339": {
+        "neighbor_incoming_edge": "563175146#0"
     }
 }
 
@@ -52,16 +52,16 @@ GREEN_TO_YELLOW_PHASE = {0: 1, 2: 3, 4: 5, 6: 7}
 
 # State Definition
 LOCAL_APPROACH_EDGES = {
-    "cluster_12705056632_3639980474_3640024452_3640024453_#7more": {
-        "north": "749313693#11",
-        "south": "1053267667#5",
+    "cluster_3639980474_3640024452_3640024453_699593332": {
+        "north": "749313693#1",
+        "south": "1396490680",
         "east": "749662140#0",
         "west": "885403818#1",
     },
-    "cluster_3640024470_3640024471_3640024476_699593339_#8more": {
-        "north": "757467200#0",
-        "south": "757373600#1",
-        "east": "757088117#0",
+    "cluster_3640024470_3640024471_3640024476_699593339": {
+        "north": "757467200",
+        "south": "757373597",
+        "east": "757088117",
         "west": "771544256#1",
     }
 }
