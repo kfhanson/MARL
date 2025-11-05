@@ -51,20 +51,22 @@ ACTION_TO_GREEN_PHASE = {0: 0, 1: 2, 2: 4, 3: 6}
 GREEN_TO_YELLOW_PHASE = {0: 1, 2: 3, 4: 5, 6: 7}
 
 # State Definition
-LOCAL_APPROACH_EDGES = {
-    "cluster_3639980474_3640024452_3640024453_699593332": {
-        "north": "749313693#1",
-        "south": "1396490680",
-        "east": "749662140#0",
-        "west": "885403818#1",
+DETECTOR_MAP = {
+    "J1": {
+        "north": ["det_J1_N_0", "det_J1_N_1", "det_J1_N_2"],
+        "south": ["det_J1_S_0", "det_J1_S_1", "det_J1_S_2"],
+        "east":  ["det_J1_E_0", "det_J1_E_1", "det_J1_E_2", "det_J1_E_3"],
+        "west":  ["det_J1_W_0", "det_J1_W_1", "det_J1_W_2", "det_J1_W_3"]
     },
-    "cluster_3640024470_3640024471_3640024476_699593339": {
-        "north": "757467200",
-        "south": "757373597",
-        "east": "757088117",
-        "west": "771544256#1",
+    "J2": {
+        "north": ["det_J2_N_0", "det_J2_N_1", "det_J2_N_2", "det_J2_N_3"],
+        "south": ["det_J2_S_0", "det_J2_S_1", "det_J2_S_2", "det_J2_S_3"],
+        "east":  ["det_J2_E_0", "det_J2_E_1", "det_J2_E_2", "det_J2_E_3"],
+        "west":  ["det_J2_W_0", "det_J2_W_1", "det_J2_W_2"]
     }
 }
+
+***J1 sama J2 pake id yg sama
 VEHICLE_BINS_FOR_STATE = [5, 15, 30]
 
 def discretize_value(value, bins):
@@ -75,21 +77,29 @@ def discretize_value(value, bins):
 
 def get_multi_agent_sumo_state(tls_id):
     try:
-        #Get local state for each traffic light
-        local_edges = LOCAL_APPROACH_EDGES[tls_id]
-        n = discretize_value(traci.edge.getLastStepHaltingNumber(local_edges["north"]), VEHICLE_BINS_FOR_STATE)
-        s = discretize_value(traci.edge.getLastStepHaltingNumber(local_edges["south"]), VEHICLE_BINS_FOR_STATE)
-        e = discretize_value(traci.edge.getLastStepHaltingNumber(local_edges["east"]), VEHICLE_BINS_FOR_STATE)
-        w = discretize_value(traci.edge.getLastStepHaltingNumber(local_edges["west"]), VEHICLE_BINS_FOR_STATE)
+        state_values = []
+        # --- 1. Get Local State from Detectors ---
+        for direction in ["north", "south", "east", "west"]:
+            detector_ids = DETECTOR_MAP[tls_id][direction]
+            # Sum the number of stopped cars from all detectors on this approach
+            total_halting_for_direction = sum(traci.laneareadetector.getLastStepHaltingNumber(det_id) for det_id in detector_ids)
+            discretized_value = discretize_value(total_halting_for_direction, VEHICLE_BINS_FOR_STATE)
+            state_values.append(discretized_value)
 
+        # --- 2. Get Neighbor State (this part remains the same, using edges) ---
         neighbor_info = NEIGHBOR_EDGE_MAP.get(tls_id, {})
-        neighbor_queues = []
-        neighbor_edge = neighbor_info.get("neighbor_incoming_edge")
-        neighbor_q = discretize_value(traci.edge.getLastStepHaltingNumber(neighbor_edge), VEHICLE_BINS_FOR_STATE) if neighbor_edge else 0
-
-        state_vector = np.array([n, s, e, w, neighbor_q], dtype=np.float32)
+        w_neighbor_edge = neighbor_info.get("west_neighbor_incoming_edge")
+        e_neighbor_edge = neighbor_info.get("east_neighbor_incoming_edge")
+        w_neighbor_q = discretize_value(traci.edge.getLastStepHaltingNumber(w_neighbor_edge), VEHICLE_BINS_FOR_STATE) if w_neighbor_edge else 0
+        e_neighbor_q = discretize_value(traci.edge.getLastStepHaltingNumber(e_neighbor_edge), VEHICLE_BINS_FOR_STATE) if e_neighbor_edge else 0
+        state_values.extend([w_neighbor_q, e_neighbor_q])
+        
+        # --- 3. Combine into final state vector ---
+        state_vector = np.array(state_values, dtype=np.float32)
         return state_vector.reshape((1, SEQUENCE_LENGTH, STATE_FEATURES))
+        
     except traci.TraCIException as e:
+        print(f"TraCI Error getting state for {tls_id}: {e}")
         return None
 
 def calculate_hybrid_reward(tls_id, all_tls_ids):
