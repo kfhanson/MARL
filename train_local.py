@@ -103,18 +103,26 @@ def get_multi_agent_sumo_state(tls_id):
 def calculate_hybrid_reward(tls_id, all_tls_ids):
     try:
         # Local reward
-        local_wait_time = sum(traci.edge.getWaitingTime(edge) for edge in LOCAL_APPROACH_EDGES[tls_id].values())
-        local_reward = -local_wait_time
+        local_halting_sum = 0
+        local_detectors = DETECTOR_MAP[tls_id]
+        for direction in local_detectors:
+            for det_id in local_detectors[direction]:
+                local_halting_sum += traci.laneareadetector.getLastStepHaltingNumber(det_id)
+        
+        local_reward = -local_halting_sum
 
         # Global reward
-        total_corridor_wait_time = 0
-        num_edges = 0
-        for tid in all_tls_ids:
-            edges = LOCAL_APPROACH_EDGES[tid].values()
-            total_corridor_wait_time += sum(traci.edge.getWaitingTime(edge) for edge in edges)
-            num_edges += len(edges)
+        global_halting_sum = 0
+        total_detectors = 0
+        for intersection_id in DETECTOR_MAP:
+            intersection_detectors = DETECTOR_MAP[intersection_id]
+            for direction in intersection_detectors:
+                for det_id in intersection_detectors[direction]:
+                    global_halting_sum += traci.laneareadetector.getLastStepHaltingNumber(det_id)
+                    total_detectors += 1
 
-        global_reward = - (total_corridor_wait_time / num_edges) if num_edges > 0 else 0
+        average_global_halting = global_halting_sum / total_detectors if total_detectors > 0 else 0
+        global_reward = -average_global_halting
 
         hybrid_reward = (0.7 * local_reward) + (0.3 * global_reward)
         return hybrid_reward
