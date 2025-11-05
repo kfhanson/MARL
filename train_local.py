@@ -52,21 +52,19 @@ GREEN_TO_YELLOW_PHASE = {0: 1, 2: 3, 4: 5, 6: 7}
 
 # State Definition
 DETECTOR_MAP = {
-    "J1": {
+    "cluster_3639980474_3640024452_3640024453_699593332": {
         "north": ["det_J1_N_0", "det_J1_N_1", "det_J1_N_2"],
         "south": ["det_J1_S_0", "det_J1_S_1", "det_J1_S_2"],
         "east":  ["det_J1_E_0", "det_J1_E_1", "det_J1_E_2", "det_J1_E_3"],
         "west":  ["det_J1_W_0", "det_J1_W_1", "det_J1_W_2", "det_J1_W_3"]
     },
-    "J2": {
+    "cluster_3640024470_3640024471_3640024476_699593339": {
         "north": ["det_J2_N_0", "det_J2_N_1", "det_J2_N_2", "det_J2_N_3"],
         "south": ["det_J2_S_0", "det_J2_S_1", "det_J2_S_2", "det_J2_S_3"],
         "east":  ["det_J2_E_0", "det_J2_E_1", "det_J2_E_2", "det_J2_E_3"],
         "west":  ["det_J2_W_0", "det_J2_W_1", "det_J2_W_2"]
     }
 }
-
-***J1 sama J2 pake id yg sama
 VEHICLE_BINS_FOR_STATE = [5, 15, 30]
 
 def discretize_value(value, bins):
