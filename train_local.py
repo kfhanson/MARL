@@ -100,7 +100,7 @@ def get_multi_agent_sumo_state(tls_id):
         print(f"TraCI Error getting state for {tls_id}: {e}")
         return None
 
-def calculate_hybrid_reward(tls_id, all_tls_ids):
+def calculate_hybrid_reward(tls_id):
     try:
         # Local reward
         local_halting_sum = 0
@@ -223,7 +223,7 @@ if __name__ == "__main__":
                     if current_state is None: continue
 
                     if last_states[tls_id] is not None:
-                        reward = calculate_hybrid_reward(tls_id, TRAFFIC_LIGHT_IDS)
+                        reward = calculate_hybrid_reward(tls_id)
                         done = traci.simulation.getMinExpectedNumber() == 0
                         
                         replay_buffers[tls_id].append((
