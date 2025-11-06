@@ -80,7 +80,7 @@ def get_multi_agent_sumo_state(tls_id):
         for direction in ["north", "south", "east", "west"]:
             detector_ids = DETECTOR_MAP[tls_id][direction]
             # Sum the number of stopped cars from all detectors on this approach
-            total_halting_for_direction = sum(traci.laneareadetector.getLastStepHaltingNumber(det_id) for det_id in detector_ids)
+            total_halting_for_direction = sum(traci.lanearea.getLastStepHaltingNumber(det_id) for det_id in detector_ids)
             discretized_value = discretize_value(total_halting_for_direction, VEHICLE_BINS_FOR_STATE)
             state_values.append(discretized_value)
 
@@ -107,7 +107,7 @@ def calculate_hybrid_reward(tls_id):
         local_detectors = DETECTOR_MAP[tls_id]
         for direction in local_detectors:
             for det_id in local_detectors[direction]:
-                local_halting_sum += traci.laneareadetector.getLastStepHaltingNumber(det_id)
+                local_halting_sum += traci.lanearea.getLastStepHaltingNumber(det_id)
         
         local_reward = -local_halting_sum
 
@@ -118,7 +118,7 @@ def calculate_hybrid_reward(tls_id):
             intersection_detectors = DETECTOR_MAP[intersection_id]
             for direction in intersection_detectors:
                 for det_id in intersection_detectors[direction]:
-                    global_halting_sum += traci.laneareadetector.getLastStepHaltingNumber(det_id)
+                    global_halting_sum += traci.lanearea.getLastStepHaltingNumber(det_id)
                     total_detectors += 1
 
         average_global_halting = global_halting_sum / total_detectors if total_detectors > 0 else 0
