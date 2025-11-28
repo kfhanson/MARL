@@ -1,4 +1,4 @@
-# Intelligent Traffic Corridor: A Multi-Agent Reinforcement Learning Approach with Huawei Cloud
+# Intelligent Traffic Corridor: A Multi-Agent Reinforcement Learning Approach
 
 ![alt text](https://img.shields.io/badge/python-3.9+-blue.svg)
 ![alt text](https://img.shields.io/badge/framework-TensorFlow_2.x-orange.svg)
